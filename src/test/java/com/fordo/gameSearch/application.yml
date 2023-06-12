@@ -1,0 +1,23 @@
+server:
+  port: 8089
+
+spring:
+  datasource:
+    url: jdbc:oracle:thin:@localhost:1521/orcl
+    username: fordo
+    password : cjfals1069
+    driver-class-name : oracle.jdbc.driver.OracleDriver
+  devtools:
+    livereload:
+      enabled: true
+    #restart:
+     # enabled: true
+
+api:
+  lol:
+    key: RGAPI-8a822b46-d582-4569-85e8-ed2048cd0d2d
+
+mybatis:
+  mapper-locations: classpath:mapper/**/*.xml
+  configuration:
+    map-underscore-to-camel-case: true

@@ -1,0 +1,569 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<div class="match Win">
+    <div class="match-header">
+        <th:block  th:each="participant : ${matchInfo.info.participants}">
+            <div class="match-header-left" th:if="${participant.summonerName} == ${userName}">
+                <div class="match-header-win">
+                    <i th:class="'fa fa-circle win-rect '+ (${participant.win} ? 'Win' : 'Lose')" aria-hidden="true"></i>
+                    <span th:text="${participant.win} ? '승리':'패배'"></span>
+                </div>
+                <div class="match-header-duration">
+                    <span th:text="${matchInfo.info.convertTime}"></span>
+                </div>
+            </div>
+        </th:block>
+        <div class="match-header-graph">
+            <div class="header-button">
+                <span class="header-graph-text">그래프</span>
+                <span class="header-stats-text part-hide">통계</span>
+            </div>
+        </div>
+    </div>
+        <div th:class="'team ' + (${userWinOrLose} ? 'Win' : 'Lose')">
+            <header class="team-header" th:each="participant : ${matchInfo.info.participants}" th:if="${participant.summonerName} == ${userName}">
+                <div class="col-champ cell">
+                    <div class="inner-cell-header header-team">
+                        <span th:class="'text-team text-'+ (${participant.teamId} == '100' ? 'RedTeam' : 'BlueTeam') + ' text-color-'+ (${participant.win} ? 'Win' : 'Lose')"></span>
+                    </div>
+                </div>
+                <div class="for-mobile col-dummy"></div>
+                <div class="col-name cell">
+                    <div class="inner-cell-header">
+                        <span th:class="'text-kda-header text-color-' + (${participant.win} ? 'Win' : 'Lose')" th:text="${participant.sumKills}"></span><span th:class="'text-color-' + (${participant.win} ? 'Win' : 'Lose')">/</span>
+                        <span th:class="'text-kda-header text-color-' + (${participant.win} ? 'Win' : 'Lose')" th:text="${participant.sumDeaths}"></span><span th:class="'text-color-' + (${participant.win} ? 'Win' : 'Lose')">/</span>
+                        <span th:class="'text-kda-header text-color-' + (${participant.win} ? 'Win' : 'Lose')" th:text="${participant.sumAssists}"></span>
+                        <img th:class="'icon-header ' + (${participant.win} ? 'Win' : 'Lose')" src="/img/icon/mask-icon-offense.png">
+                    </div>
+                </div>
+                <div class="col-item cell">
+                    <div class="inner-cell-header">
+                        <span class="text-gold-header">54,114</span>
+                        <img class="icon-header" src="/img/icon/mask-icon-gold.png">
+                    </div>
+                </div>
+                <div class="col-kda cell">
+                    <div class="inner-cell-header padding-cell">
+                        <span><img class="icon-header" src="/img/icon/mask-icon-offense.png"></span>
+                    </div>
+                </div>
+                <div class="col-cs cell">
+                    <div class="inner-cell-header padding-cell">
+                        <span><img class="icon-header" src="/img/icon/mask-icon-cs.png"></span>
+                    </div>
+                </div>
+                <div class="col-gold cell">
+                    <div class="inner-cell-header">
+                        <span><img class="icon-header" src="/img/icon/mask-icon-gold.png"></span>
+                    </div>
+                </div>
+                <div class="col-damage cell part-hide">
+                    <div class="inner-cell-header">챔피언에게 가한 총 피해량</div>
+                </div>
+            </header>
+            <ul class="team-container">
+                <li th:each="participant, participantIndex : ${matchInfo.info.participants}" th:class="(${participant.summonerName} == ${userName}) ? 'team-part is-me' : 'team-part'">
+                    <div class="part-champ cell">
+                        <div class="inner-cell">
+                            <div class="part-rune">
+                                <img class="rune-main rune tooltipstered"
+                                     src="https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Precision/Conqueror/Conqueror.png"
+                                     rune-id="8010">
+                                <img class="rune-sub rune tooltipstered"
+                                     src="https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/7203_Whimsy.png"
+                                     rune-id="8300">
+                            </div>
+                            <div class="part-spell">
+                                <img class="spell1 spell tooltipstered"
+                                     src="https://ddragon.leagueoflegends.com/cdn/13.9.1/img/spell/SummonerFlash.png"
+                                     spell-name="SummonerFlash">
+                                <img class="spell2 spell tooltipstered"
+                                     src="https://ddragon.leagueoflegends.com/cdn/13.9.1/img/spell/SummonerSmite.png"
+                                     spell-name="SummonerSmite">
+                            </div>
+                            <div class="part-level">
+                                <span th:text="${participant.champLevel}"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="part-name cell">
+                        <div class="inner-cell" style="float: left;">
+                            <div class="part-icon">
+                                <img th:src="|https://ddragon.leagueoflegends.com/cdn/${version}/img/champion/${participant.championName}.png|" th:attr="alt=${participant.championName}, title=${participant.championName}">
+                                <div class="shadow"></div>
+                            </div>
+                            <a class="part-link" th:href="'/lol/search.do/'+${participant.summonerName}" th:text="${participant.summonerName}"></a>
+                        </div>
+                    </div>
+                    <div class="part-item cell">
+                        <div class="inner-cell">
+                            <img class="item item-first tooltipstered" th:src="${participant.item0} == 0 ? '/img/recent/recent-6.jpg' :'https://ddragon.bangingheads.net/cdn/'+${version}+'/img/item/'+${participant.item0}+'.png'" item-id="6333">
+                            <img class="item tooltipstered" th:src="${participant.item0} == 0 ? '/img/recent/recent-6.jpg' :'https://ddragon.bangingheads.net/cdn/'+${version}+'/img/item/'+${participant.item1}+'.png'" item-id="1031">
+                            <img class="item tooltipstered" th:src="${participant.item0} == 0 ? '/img/recent/recent-6.jpg' :'https://ddragon.bangingheads.net/cdn/'+${version}+'/img/item/'+${participant.item2}+'.png'" item-id="2420">
+                            <img class="item tooltipstered" th:src="${participant.item0} == 0 ? '/img/recent/recent-6.jpg' :'https://ddragon.bangingheads.net/cdn/'+${version}+'/img/item/'+${participant.item3}+'.png'" item-id="1038">
+                            <img class="item tooltipstered" th:src="${participant.item0} == 0 ? '/img/recent/recent-6.jpg' :'https://ddragon.bangingheads.net/cdn/'+${version}+'/img/item/'+${participant.item4}+'.png'" item-id="3111">
+                            <img class="item tooltipstered" th:src="${participant.item0} == 0 ? '/img/recent/recent-6.jpg' :'https://ddragon.bangingheads.net/cdn/'+${version}+'/img/item/'+${participant.item5}+'.png'" item-id="6632">
+                            <div class="item-vision">
+                                <img class="item tooltipstered" th:src="'https://ddragon.bangingheads.net/cdn/'+${version}+'/img/item/'+${participant.item6}+'.png'" item-id="3364">
+                                <span class="vision-score tooltipstered" th:text="${participant.visionScore}"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="part-kda cell">
+                        <div class="inner-cell padding-cell" title="(48%)">
+                            <span class="text-kda" th:text="${participant.kills}"></span>
+                            <span>/</span><span class="text-kda" th:text="${participant.deaths}"></span>
+                            <span>/</span><span class="text-kda" th:text="${participant.assists}"></span>
+                        </div>
+                    </div>
+                    <div class="part-cs cell">
+                        <div class="inner-cell padding-cell">
+                            <span class="text-cs" title="23 + 142 (6.1)" th:text="${participant.totalAllyJungleMinionsKilled}+${participant.totalMinionsKilled}">165</span>
+                        </div>
+                    </div>
+                    <div class="part-gold cell">
+                        <div class="inner-cell padding-cell">
+                            <span class="text-gold" th:text="${participant.totalDamageDealtToChampions}"></span>
+                        </div>
+                    </div>
+                    <div class="part-damage cell part-hide">
+                        <div class="inner-cell">
+                            <div class="damage-box Win" data-dmg="12243" style="width: 290.153px;"></div>
+                            <span class="text-damage" title="12,243/211,762">12,243</span>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </th:block>
+
+    <div class="team Lose">
+        <header class="team-header">
+            <div class="col-champ cell">
+                <div class="inner-cell-header header-team">
+                    <span class="text-team text-BlueTeam text-color-Lose">파랑 팀</span>
+                </div>
+            </div>
+            <div class="for-mobile col-dummy"></div>
+            <div class="col-name cell">
+                <div class="inner-cell-header">
+                    <span class="text-kda-header text-color-Lose">12</span><span class="text-color-Lose">/</span>
+                    <span class="text-kda-header text-color-Lose">23</span><span class="text-color-Lose">/</span>
+                    <span class="text-kda-header text-color-Lose">24</span>
+                    <img class="icon-header Lose" src="/images/icon/mask-icon-offense.png">
+                </div>
+            </div>
+            <div class="col-item cell">
+                <div class="inner-cell-header">
+                    <span class="text-gold-header">41,069</span>
+                    <img class="icon-header" src="/images/icon/mask-icon-gold.png">
+                </div>
+            </div>
+            <div class="col-kda cell">
+                <div class="inner-cell-header padding-cell">
+                    <span><img class="icon-header" src="/images/icon/mask-icon-offense.png"></span>
+                </div>
+            </div>
+            <div class="col-cs cell">
+                <div class="inner-cell-header padding-cell">
+                    <span><img class="icon-header" src="/images/icon/mask-icon-cs.png"></span>
+                </div>
+            </div>
+            <div class="col-gold cell">
+                <div class="inner-cell-header">
+                    <span><img class="icon-header" src="/images/icon/mask-icon-gold.png"></span>
+                </div>
+            </div>
+            <div class="col-damage cell part-hide">
+                <div class="inner-cell-header">챔피언에게 가한 총 피해량</div>
+            </div>
+        </header>
+        <ul class="team-container">
+            <li class="team-part" data-deal="21986">
+                <div class="part-champ cell">
+                    <div class="inner-cell">
+                        <div class="part-rune">
+                            <img class="rune-main rune tooltipstered"
+                                 src="https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Inspiration/FirstStrike/FirstStrike.png"
+                                 rune-id="8369">
+                            <img class="rune-sub rune tooltipstered"
+                                 src="https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/7202_Sorcery.png"
+                                 rune-id="8200">
+                        </div>
+                        <div class="part-spell">
+                            <img class="spell1 spell tooltipstered"
+                                 src="https://ddragon.leagueoflegends.com/cdn/13.9.1/img/spell/SummonerHeal.png"
+                                 spell-name="SummonerHeal">
+                            <img class="spell2 spell tooltipstered"
+                                 src="https://ddragon.leagueoflegends.com/cdn/13.9.1/img/spell/SummonerFlash.png"
+                                 spell-name="SummonerFlash">
+                        </div>
+                        <div class="part-level">
+                            <span>12</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="part-name cell">
+                    <div class="inner-cell" style="float: left;">
+                        <div class="part-icon">
+                            <img src="https://ddragon.leagueoflegends.com/cdn/13.9.1/img/champion/Ezreal.png"
+                                 alt="Ezreal" title="Ezreal">
+                            <div class="shadow"></div>
+                        </div>
+                        <a class="part-link" href="/id/199173">인간코코넛</a>
+                    </div>
+                </div>
+                <div class="part-item cell">
+                    <div class="inner-cell">
+                        <img class="item item-first tooltipstered"
+                             src="https://ddragon.bangingheads.net/cdn/latest/img/item/3042.png" item-id="3042"><img
+                            class="item tooltipstered"
+                            src="https://ddragon.bangingheads.net/cdn/latest/img/item/6694.png" item-id="6694"><img
+                            class="item tooltipstered"
+                            src="https://ddragon.bangingheads.net/cdn/latest/img/item/3508.png" item-id="3508"><img
+                            class="item tooltipstered"
+                            src="https://ddragon.bangingheads.net/cdn/latest/img/item/3158.png" item-id="3158">
+                        <rect class="item tooltipstered"></rect>
+                        <rect class="item tooltipstered"></rect>
+                        <div class="item-vision"><img class="item tooltipstered"
+                                                      src="https://ddragon.bangingheads.net/cdn/latest/img/item/3363.png"
+                                                      item-id="3363"><span class="vision-score tooltipstered">19</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="part-kda cell">
+                    <div class="inner-cell padding-cell" title="(92%)">
+                        <span class="text-kda">5</span>
+                        <span>/</span><span class="text-kda">5</span>
+                        <span>/</span><span class="text-kda">6</span>
+                    </div>
+                </div>
+                <div class="part-cs cell">
+                    <div class="inner-cell padding-cell">
+                        <span class="text-cs" title="171 + 0 (6.4)">171</span>
+                    </div>
+                </div>
+                <div class="part-gold cell">
+                    <div class="inner-cell padding-cell">
+                        <span class="text-gold">10,246</span>
+                    </div>
+                </div>
+                <div class="part-damage cell part-hide">
+                    <div class="inner-cell">
+                        <div class="damage-box Lose" data-dmg="21986" style="width: 521.057px;"></div>
+                        <span class="text-damage" title="21,986/116,480">21,986</span>
+                    </div>
+                </div>
+            </li>
+            <li class="team-part" data-deal="10112">
+                <div class="part-champ cell">
+                    <div class="inner-cell">
+                        <div class="part-rune">
+                            <img class="rune-main rune tooltipstered"
+                                 src="https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Domination/Electrocute/Electrocute.png"
+                                 rune-id="8112">
+                            <img class="rune-sub rune tooltipstered"
+                                 src="https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/7202_Sorcery.png"
+                                 rune-id="8200">
+                        </div>
+                        <div class="part-spell">
+                            <img class="spell1 spell tooltipstered"
+                                 src="https://ddragon.leagueoflegends.com/cdn/13.9.1/img/spell/SummonerDot.png"
+                                 spell-name="SummonerDot">
+                            <img class="spell2 spell tooltipstered"
+                                 src="https://ddragon.leagueoflegends.com/cdn/13.9.1/img/spell/SummonerFlash.png"
+                                 spell-name="SummonerFlash">
+                        </div>
+                        <div class="part-level">
+                            <span>13</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="part-name cell">
+                    <div class="inner-cell" style="float: left;">
+                        <div class="part-icon">
+                            <img src="https://ddragon.leagueoflegends.com/cdn/13.9.1/img/champion/Leblanc.png"
+                                 alt="Leblanc" title="Leblanc">
+                            <div class="shadow"></div>
+                        </div>
+                        <a class="part-link" href="/id/1044460">붕승현봉어빵사줘</a>
+                    </div>
+                </div>
+                <div class="part-item cell">
+                    <div class="inner-cell">
+                        <img class="item item-first tooltipstered"
+                             src="https://ddragon.bangingheads.net/cdn/latest/img/item/4636.png" item-id="4636"><img
+                            class="item tooltipstered"
+                            src="https://ddragon.bangingheads.net/cdn/latest/img/item/3145.png" item-id="3145"><img
+                            class="item tooltipstered"
+                            src="https://ddragon.bangingheads.net/cdn/latest/img/item/2033.png" item-id="2033"><img
+                            class="item tooltipstered"
+                            src="https://ddragon.bangingheads.net/cdn/latest/img/item/1082.png" item-id="1082"><img
+                            class="item tooltipstered"
+                            src="https://ddragon.bangingheads.net/cdn/latest/img/item/3020.png" item-id="3020">
+                        <rect class="item tooltipstered"></rect>
+                        <div class="item-vision"><img class="item tooltipstered"
+                                                      src="https://ddragon.bangingheads.net/cdn/latest/img/item/3364.png"
+                                                      item-id="3364"><span class="vision-score tooltipstered">23</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="part-kda cell">
+                    <div class="inner-cell padding-cell" title="(33%)">
+                        <span class="text-kda">0</span>
+                        <span>/</span><span class="text-kda">3</span>
+                        <span>/</span><span class="text-kda">4</span>
+                    </div>
+                </div>
+                <div class="part-cs cell">
+                    <div class="inner-cell padding-cell">
+                        <span class="text-cs" title="110 + 0 (4.1)">110</span>
+                    </div>
+                </div>
+                <div class="part-gold cell">
+                    <div class="inner-cell padding-cell">
+                        <span class="text-gold">6,469</span>
+                    </div>
+                </div>
+                <div class="part-damage cell part-hide">
+                    <div class="inner-cell">
+                        <div class="damage-box Lose" data-dmg="10112" style="width: 239.649px;"></div>
+                        <span class="text-damage" title="10,112/44,415">10,112</span>
+                    </div>
+                </div>
+            </li>
+            <li class="team-part" data-deal="12473">
+                <div class="part-champ cell">
+                    <div class="inner-cell">
+                        <div class="part-rune">
+                            <img class="rune-main rune tooltipstered"
+                                 src="https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Sorcery/ArcaneComet/ArcaneComet.png"
+                                 rune-id="8229">
+                            <img class="rune-sub rune tooltipstered"
+                                 src="https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/7200_Domination.png"
+                                 rune-id="8100">
+                        </div>
+                        <div class="part-spell">
+                            <img class="spell1 spell tooltipstered"
+                                 src="https://ddragon.leagueoflegends.com/cdn/13.9.1/img/spell/SummonerExhaust.png"
+                                 spell-name="SummonerExhaust">
+                            <img class="spell2 spell tooltipstered"
+                                 src="https://ddragon.leagueoflegends.com/cdn/13.9.1/img/spell/SummonerFlash.png"
+                                 spell-name="SummonerFlash">
+                        </div>
+                        <div class="part-level">
+                            <span>12</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="part-name cell">
+                    <div class="inner-cell" style="float: left;">
+                        <div class="part-icon">
+                            <img src="https://ddragon.leagueoflegends.com/cdn/13.9.1/img/champion/Lux.png" alt="Lux"
+                                 title="Lux">
+                            <div class="shadow"></div>
+                        </div>
+                        <a class="part-link" href="/id/1918623">달에 간 강아지</a>
+                    </div>
+                </div>
+                <div class="part-item cell">
+                    <div class="inner-cell">
+                        <img class="item item-first tooltipstered"
+                             src="https://ddragon.bangingheads.net/cdn/latest/img/item/3853.png" item-id="3853"><img
+                            class="item tooltipstered"
+                            src="https://ddragon.bangingheads.net/cdn/latest/img/item/6655.png" item-id="6655"><img
+                            class="item tooltipstered"
+                            src="https://ddragon.bangingheads.net/cdn/latest/img/item/3070.png" item-id="3070"><img
+                            class="item tooltipstered"
+                            src="https://ddragon.bangingheads.net/cdn/latest/img/item/3145.png" item-id="3145"><img
+                            class="item tooltipstered"
+                            src="https://ddragon.bangingheads.net/cdn/latest/img/item/3020.png" item-id="3020">
+                        <rect class="item tooltipstered"></rect>
+                        <div class="item-vision"><img class="item tooltipstered"
+                                                      src="https://ddragon.bangingheads.net/cdn/latest/img/item/3364.png"
+                                                      item-id="3364"><span class="vision-score tooltipstered">41</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="part-kda cell">
+                    <div class="inner-cell padding-cell" title="(67%)">
+                        <span class="text-kda">1</span>
+                        <span>/</span><span class="text-kda">6</span>
+                        <span>/</span><span class="text-kda">7</span>
+                    </div>
+                </div>
+                <div class="part-cs cell">
+                    <div class="inner-cell padding-cell">
+                        <span class="text-cs" title="51 + 0 (1.9)">51</span>
+                    </div>
+                </div>
+                <div class="part-gold cell">
+                    <div class="inner-cell padding-cell">
+                        <span class="text-gold">6,580</span>
+                    </div>
+                </div>
+                <div class="part-damage cell part-hide">
+                    <div class="inner-cell">
+                        <div class="damage-box Lose" data-dmg="12473" style="width: 295.604px;"></div>
+                        <span class="text-damage" title="12,473/64,458">12,473</span>
+                    </div>
+                </div>
+            </li>
+            <li class="team-part" data-deal="9355">
+                <div class="part-champ cell">
+                    <div class="inner-cell">
+                        <div class="part-rune">
+                            <img class="rune-main rune tooltipstered"
+                                 src="https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Precision/Conqueror/Conqueror.png"
+                                 rune-id="8010">
+                            <img class="rune-sub rune tooltipstered"
+                                 src="https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/7203_Whimsy.png"
+                                 rune-id="8300">
+                        </div>
+                        <div class="part-spell">
+                            <img class="spell1 spell tooltipstered"
+                                 src="https://ddragon.leagueoflegends.com/cdn/13.9.1/img/spell/SummonerSmite.png"
+                                 spell-name="SummonerSmite">
+                            <img class="spell2 spell tooltipstered"
+                                 src="https://ddragon.leagueoflegends.com/cdn/13.9.1/img/spell/SummonerFlash.png"
+                                 spell-name="SummonerFlash">
+                        </div>
+                        <div class="part-level">
+                            <span>13</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="part-name cell">
+                    <div class="inner-cell" style="float: left;">
+                        <div class="part-icon">
+                            <img src="https://ddragon.leagueoflegends.com/cdn/13.9.1/img/champion/LeeSin.png"
+                                 alt="LeeSin" title="LeeSin">
+                            <div class="shadow"></div>
+                        </div>
+                        <a class="part-link" href="/id/1976259">증명가</a>
+                    </div>
+                </div>
+                <div class="part-item cell">
+                    <div class="inner-cell">
+                        <img class="item item-first tooltipstered"
+                             src="https://ddragon.bangingheads.net/cdn/latest/img/item/3071.png" item-id="3071"><img
+                            class="item tooltipstered"
+                            src="https://ddragon.bangingheads.net/cdn/latest/img/item/6630.png" item-id="6630"><img
+                            class="item tooltipstered"
+                            src="https://ddragon.bangingheads.net/cdn/latest/img/item/2055.png" item-id="2055"><img
+                            class="item tooltipstered"
+                            src="https://ddragon.bangingheads.net/cdn/latest/img/item/2422.png" item-id="2422">
+                        <rect class="item tooltipstered"></rect>
+                        <rect class="item tooltipstered"></rect>
+                        <div class="item-vision"><img class="item tooltipstered"
+                                                      src="https://ddragon.bangingheads.net/cdn/latest/img/item/3340.png"
+                                                      item-id="3340"><span class="vision-score tooltipstered">12</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="part-kda cell">
+                    <div class="inner-cell padding-cell" title="(67%)">
+                        <span class="text-kda">3</span>
+                        <span>/</span><span class="text-kda">6</span>
+                        <span>/</span><span class="text-kda">5</span>
+                    </div>
+                </div>
+                <div class="part-cs cell">
+                    <div class="inner-cell padding-cell">
+                        <span class="text-cs" title="5 + 109 (4.2)">114</span>
+                    </div>
+                </div>
+                <div class="part-gold cell">
+                    <div class="inner-cell padding-cell">
+                        <span class="text-gold">7,880</span>
+                    </div>
+                </div>
+                <div class="part-damage cell part-hide">
+                    <div class="inner-cell">
+                        <div class="damage-box Lose" data-dmg="9355" style="width: 221.709px;"></div>
+                        <span class="text-damage" title="9,355/130,763">9,355</span>
+                    </div>
+                </div>
+            </li>
+            <li class="team-part" data-deal="11033">
+                <div class="part-champ cell">
+                    <div class="inner-cell">
+                        <div class="part-rune">
+                            <img class="rune-main rune tooltipstered"
+                                 src="https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Precision/Conqueror/Conqueror.png"
+                                 rune-id="8010">
+                            <img class="rune-sub rune tooltipstered"
+                                 src="https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/7202_Sorcery.png"
+                                 rune-id="8200">
+                        </div>
+                        <div class="part-spell">
+                            <img class="spell1 spell tooltipstered"
+                                 src="https://ddragon.leagueoflegends.com/cdn/13.9.1/img/spell/SummonerDot.png"
+                                 spell-name="SummonerDot">
+                            <img class="spell2 spell tooltipstered"
+                                 src="https://ddragon.leagueoflegends.com/cdn/13.9.1/img/spell/SummonerFlash.png"
+                                 spell-name="SummonerFlash">
+                        </div>
+                        <div class="part-level">
+                            <span>15</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="part-name cell">
+                    <div class="inner-cell" style="float: left;">
+                        <div class="part-icon">
+                            <img src="https://ddragon.leagueoflegends.com/cdn/13.9.1/img/champion/Garen.png" alt="Garen"
+                                 title="Garen">
+                            <div class="shadow"></div>
+                        </div>
+                        <a class="part-link" href="/id/1996400">검은 별1</a>
+                    </div>
+                </div>
+                <div class="part-item cell">
+                    <div class="inner-cell">
+                        <img class="item item-first tooltipstered"
+                             src="https://ddragon.bangingheads.net/cdn/latest/img/item/3140.png" item-id="3140"><img
+                            class="item tooltipstered"
+                            src="https://ddragon.bangingheads.net/cdn/latest/img/item/6631.png" item-id="6631"><img
+                            class="item tooltipstered"
+                            src="https://ddragon.bangingheads.net/cdn/latest/img/item/3006.png" item-id="3006"><img
+                            class="item tooltipstered"
+                            src="https://ddragon.bangingheads.net/cdn/latest/img/item/3086.png" item-id="3086"><img
+                            class="item tooltipstered"
+                            src="https://ddragon.bangingheads.net/cdn/latest/img/item/1057.png" item-id="1057"><img
+                            class="item tooltipstered"
+                            src="https://ddragon.bangingheads.net/cdn/latest/img/item/3066.png" item-id="3066">
+                        <div class="item-vision"><img class="item tooltipstered"
+                                                      src="https://ddragon.bangingheads.net/cdn/latest/img/item/3364.png"
+                                                      item-id="3364"><span class="vision-score tooltipstered">9</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="part-kda cell">
+                    <div class="inner-cell padding-cell" title="(42%)">
+                        <span class="text-kda">3</span>
+                        <span>/</span><span class="text-kda">3</span>
+                        <span>/</span><span class="text-kda">2</span>
+                    </div>
+                </div>
+                <div class="part-cs cell">
+                    <div class="inner-cell padding-cell">
+                        <span class="text-cs" title="194 + 4 (7.4)">198</span>
+                    </div>
+                </div>
+                <div class="part-gold cell">
+                    <div class="inner-cell padding-cell">
+                        <span class="text-gold">9,894</span>
+                    </div>
+                </div>
+                <div class="part-damage cell part-hide">
+                    <div class="inner-cell">
+                        <div class="damage-box Lose" data-dmg="11033" style="width: 261.476px;"></div>
+                        <span class="text-damage" title="11,033/94,356">11,033</span>
+                    </div>
+                </div>
+            </li>
+        </ul>
+    </div>
+</div>
+</html>

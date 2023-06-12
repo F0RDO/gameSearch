@@ -1,0 +1,373 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.fordo.gameSearch.lolSearch.Service.Mapper.LolMapper">
+    <!-- 국가 코드 수집 -->
+    <select id="findCountry" resultType="com.fordo.gameSearch.lolSearch.domain.LolInfoVO">
+        SELECT * FROM COUNTRY
+        WHERE GAME_NAME = 'LOL'
+    </select>
+
+    <!-- 유저 정보 카운트 -->
+    <select id="countUserInfo" parameterType="String" resultType="int">
+        SELECT COUNT(*)
+        FROM USER_INFO
+        WHERE NAME = UPPER(#{userName})
+    </select>
+
+    <!-- 해당 유저 정보 찾기 -->
+    <select id="findUserInfo" parameterType="String" resultType="com.fordo.gameSearch.lolSearch.domain.LolInfoVO">
+        SELECT
+                ID,
+                ACCOUNT_ID,
+                PUUID,
+                NAME,
+                PROFILE_ICON_ID,
+                REVISION_DATE,
+                SUMMONER_LEVEL
+        FROM USER_INFO
+        WHERE NAME = UPPER(#{userName})
+    </select>
+
+    <!-- 유저 정보 삽입 -->
+    <insert id="insertUserInfo" parameterType="com.fordo.gameSearch.lolSearch.domain.LolInfoVO">
+        INSERT INTO USER_INFO
+        VALUES (#{id}, #{accountId}, #{puuid}, #{name}, #{profileIconId}, #{revisionDate}, #{summonerLevel})
+    </insert>
+
+    <!-- 매치 정보 리스트 삽입 -->
+    <insert id="insertMatchInfoList" parameterType="java.util.List">
+        <foreach collection="list" item="matchDto" open="INSERT ALL" separator=" " close="SELECT * FROM DUAL">
+            INTO MATCH(MATCH_ID, GAME_ID, USER_NAME)
+            VALUES(
+                #{matchDto.metadata.matchId},
+                #{matchDto.metadata.matchId},
+                #{matchDto.userName}
+            )
+            INTO MATCH_METADATA(DATA_VERSION, MATCH_ID)
+            VALUES(
+                #{matchDto.metadata.dataVersion},
+                #{matchDto.metadata.matchId}
+            )
+            INTO MATCH_INFO(USER_TEAM_ID,USER_WIN_OR_LOSE,ENEMY_USER_NAME,GAME_CREATION,GAME_DURATION,GAME_END_TIMESTAMP,GAME_ID,GAME_MODE,GAME_NAME,GAME_START_TIMESTAMP,GAME_TYPE,GAME_VERSION,MAP_ID,PLATFORM_ID,QUEUE_ID,TOURNAMENT_CODE,CONVERT_TIME,REST_DAYS,REST_HOURS)
+            VALUES(
+                #{matchDto.info.userTeamId},
+                #{matchDto.info.userWinOrLose},
+                #{matchDto.info.enemyUserName},
+                #{matchDto.info.gameCreation},
+                #{matchDto.info.gameDuration},
+                #{matchDto.info.gameEndTimestamp},
+                <![CDATA[
+                            'KR_'||#{matchDto.info.gameId}
+                        ]]>,
+                #{matchDto.info.gameMode},
+                #{matchDto.info.gameName},
+                #{matchDto.info.gameStartTimestamp},
+                #{matchDto.info.gameType},
+                #{matchDto.info.gameVersion},
+                #{matchDto.info.mapId},
+                #{matchDto.info.platformId},
+                #{matchDto.info.queueId},
+                #{matchDto.info.tournamentCode},
+                #{matchDto.info.convertTime},
+                #{matchDto.info.restDays},
+                #{matchDto.info.restHours}
+            )
+            <foreach collection="matchDto.info.participants" item="participant">
+                INTO MATCH_PARTICIPANT(GAME_ID,SUM_KILLS,SUM_DEATHS,SUM_ASSISTS,CAL_AVG,KILL_PERCENT,SPELL1,SPELL2,ASSISTS,BARON_KILLS,BOUNTY_LEVEL,CHAMP_EXPERIENCE,CHAMP_LEVEL,CHAMPION_ID,CHAMPION_TRANSFORM,CONSUMABLES_PURCHASED,DAMAGE_DEALT_TO_BUILDINGS,DAMAGE_DEALT_TO_OBJECTIVES,DAMAGE_DEALT_TO_TURRETS,DAMAGE_SELF_MITIGATED,DEATHS,DETECTOR_WARDS_PLACED,DOUBLE_KILLS,DRAGON_KILLS,FIRST_BLOOD_ASSIST,FIRST_BLOOD_KILL,FIRST_TOWER_ASSIST,FIRST_TOWER_KILL,GAME_ENDED_IN_EARLY_SURRENDER,GAME_ENDED_IN_SURRENDER,GOLD_EARNED,GOLD_SPENT,INDIVIDUAL_POSITION,INHIBITOR_KILLS,INHIBITOR_TAKEDOWNS,INHIBITORS_LOST,ITEM0,ITEM1,ITEM2,ITEM3,ITEM4,ITEM5,ITEM6,ITEMS_PURCHASED,KILLING_SPREES,KILLS,LANE,LARGEST_CRITICAL_STRIKE,LARGEST_KILLING_SPREE,LARGEST_MULTI_KILL,LONGEST_TIME_SPENT_LIVING,MAGIC_DAMAGE_DEALT,MAGIC_DAMAGE_DEALT_TO_CHAMPIONS,MAGIC_DAMAGE_TAKEN,NEUTRAL_MINIONS_KILLED,NEXUS_KILLS,NEXUS_TAKEDOWNS,NEXUS_LOST,OBJECTIVES_STOLEN,OBJECTIVES_STOLEN_ASSISTS,PARTICIPANT_ID,PENTA_KILLS,PHYSICAL_DAMAGE_DEALT,PHYSICAL_DAMAGE_DEALT_TO_CHAMPIONS,PHYSICAL_DAMAGE_TAKEN,PROFILE_ICON,PUUID,QUADRA_KILLS,RIOT_ID_NAME,RIOT_ID_TAGLINE,"ROLE",SIGHT_WARDS_BOUGHT_IN_GAME,SPELL1_CASTS,SPELL2_CASTS,SPELL3_CASTS,SPELL4_CASTS,SUMMONER1_CASTS,SUMMONER1_ID,SUMMONER2_CASTS,SUMMONER2_ID,SUMMONER_ID,SUMMONER_LEVEL,SUMMONER_NAME,TEAM_EARLY_SURRENDERED,TEAM_ID,TEAM_POSITION,TIME_CCING_OTHERS,TIME_PLAYED,TOTAL_DAMAGE_DEALT,TOTAL_DAMAGE_DEALT_TO_CHAMPIONS,TOTAL_DAMAGE_SHIELDED_ON_TEAMMATES,TOTAL_DAMAGE_TAKEN,TOTAL_HEAL,TOTAL_HEALS_ON_TEAMMATES,TOTAL_MINIONS_KILLED,TOTAL_TIME_CC_DEALT,TOTAL_TIME_SPENT_DEAD,TOTAL_UNITS_HEALED,TRIPLE_KILLS,TRUE_DAMAGE_DEALT,TRUE_DAMAGE_DEALT_TO_CHAMIONS,TRUE_DAMAGE_TAKEN,TURRET_KILLS,TURRET_TAKEDOWNS,TURRETS_LOST,UNREAL_KILLS,VISION_SCORE,VISION_WARDS_BOUGHT_IN_GAME,WARDS_KILLED,WARDS_PLACED,WIN,TOTAL_ALLY_JUNGLE_MINIONS_KILLED,CHAMPION_NAME)
+                VALUES(
+                <![CDATA[
+                            'KR_'||#{matchDto.info.gameId}
+                        ]]>,
+                #{participant.sumKills},
+                #{participant.sumDeaths},
+                #{participant.sumAssists},
+                #{participant.calAvg},
+                #{participant.killPercent},
+                #{participant.spell1},
+                #{participant.spell2},
+                #{participant.assists},
+                #{participant.baronKills},
+                #{participant.bountyLevel},
+                #{participant.champExperience},
+                #{participant.champLevel},
+                #{participant.championId},
+                #{participant.championTransform},
+                #{participant.consumablesPurchased},
+                #{participant.damageDealtToBuildings},
+                #{participant.damageDealtToObjectives},
+                #{participant.damageDealtToTurrets},
+                #{participant.damageSelfMitigated},
+                #{participant.deaths},
+                #{participant.detectorWardsPlaced},
+                #{participant.doubleKills},
+                #{participant.dragonKills},
+                #{participant.firstBloodAssist},
+                #{participant.firstBloodKill},
+                #{participant.firstTowerAssist},
+                #{participant.firstTowerKill},
+                #{participant.gameEndedInEarlySurrender},
+                #{participant.gameEndedInSurrender},
+                #{participant.goldEarned},
+                #{participant.goldSpent},
+                #{participant.individualPosition},
+                #{participant.inhibitorKills},
+                #{participant.inhibitorTakedowns},
+                #{participant.inhibitorsLost},
+                #{participant.item0},
+                #{participant.item1},
+                #{participant.item2},
+                #{participant.item3},
+                #{participant.item4},
+                #{participant.item5},
+                #{participant.item6},
+                #{participant.itemsPurchased},
+                #{participant.killingSprees},
+                #{participant.kills},
+                #{participant.lane},
+                #{participant.largestCriticalStrike},
+                #{participant.largestKillingSpree},
+                #{participant.largestMultiKill},
+                #{participant.longestTimeSpentLiving},
+                #{participant.magicDamageDealt},
+                #{participant.magicDamageDealtToChampions},
+                #{participant.magicDamageTaken},
+                #{participant.neutralMinionsKilled},
+                #{participant.nexusKills},
+                #{participant.nexusTakedowns},
+                #{participant.nexusLost},
+                #{participant.objectivesStolen},
+                #{participant.objectivesStolenAssists},
+                #{participant.participantId},
+                #{participant.pentaKills},
+                #{participant.physicalDamageDealt},
+                #{participant.physicalDamageDealtToChampions},
+                #{participant.physicalDamageTaken},
+                #{participant.profileIcon},
+                #{participant.puuid},
+                #{participant.quadraKills},
+                #{participant.riotIdName},
+                #{participant.riotIdTagline},
+                #{participant.role},
+                #{participant.sightWardsBoughtInGame},
+                #{participant.spell1Casts},
+                #{participant.spell2Casts},
+                #{participant.spell3Casts},
+                #{participant.spell4Casts},
+                #{participant.summoner1Casts},
+                #{participant.summoner1Id},
+                #{participant.summoner2Casts},
+                #{participant.summoner2Id},
+                #{participant.summonerId},
+                #{participant.summonerLevel},
+                #{participant.summonerName},
+                #{participant.teamEarlySurrendered},
+                #{participant.teamId},
+                #{participant.teamPosition},
+                #{participant.timeCCingOthers},
+                #{participant.timePlayed},
+                #{participant.totalDamageDealt},
+                #{participant.totalDamageDealtToChampions},
+                #{participant.totalDamageShieldedOnTeammates},
+                #{participant.totalDamageTaken},
+                #{participant.totalHeal},
+                #{participant.totalHealsOnTeammates},
+                #{participant.totalMinionsKilled},
+                #{participant.totalTimeCCDealt},
+                #{participant.totalTimeSpentDead},
+                #{participant.totalUnitsHealed},
+                #{participant.tripleKills},
+                #{participant.trueDamageDealt},
+                #{participant.trueDamageDealtToChampions},
+                #{participant.trueDamageTaken},
+                #{participant.turretKills},
+                #{participant.turretTakedowns},
+                #{participant.turretsLost},
+                #{participant.unrealKills},
+                #{participant.visionScore},
+                #{participant.visionWardsBoughtInGame},
+                #{participant.wardsKilled},
+                #{participant.wardsPlaced},
+                #{participant.win},
+                #{participant.totalAllyJungleMinionsKilled},
+                #{participant.championName}
+                )
+            </foreach>
+        </foreach>
+    </insert>
+
+    <select id="selectMatchInfoList" parameterType="java.lang.String" resultMap="matchDtoResultMap">
+        SELECT
+        M.USER_NAME,
+        MM.DATA_VERSION,
+        MM.MATCH_ID,
+        MI.*
+        FROM MATCH M INNER JOIN MATCH_METADATA MM
+        ON M.MATCH_ID = MM.MATCH_ID
+        INNER JOIN MATCH_INFO MI
+        ON M.MATCH_ID = MI.GAME_ID
+        WHERE USER_NAME = UPPER(#{userName})
+    </select>
+
+    <select id="selectMatchParticipantList" parameterType="java.lang.String" resultMap="participantDtoResultMap">
+        SELECT
+        *
+        FROM MATCH_PARTICIPANT
+        WHERE GAME_ID = #{GAME_ID}
+    </select>
+
+    <resultMap id="matchDtoResultMap" type="com.fordo.gameSearch.lolSearch.domain.MatchDto" >
+        <id column="USER_NAME" property="userName" />
+        <association property="metadata" javaType="com.fordo.gameSearch.lolSearch.domain.MetadataDto" resultMap="metadataDtoResultMap"/>
+        <association property="info" javaType="com.fordo.gameSearch.lolSearch.domain.MatchInfoVO" resultMap="matchInfoVOResultMap" />
+    </resultMap>
+
+    <resultMap id="metadataDtoResultMap" type="com.fordo.gameSearch.lolSearch.domain.MetadataDto">
+        <result column="match_id" property="matchId" />
+        <result column="data_version" property="dataVersion" />
+    </resultMap>
+
+    <resultMap id="matchInfoVOResultMap" type="com.fordo.gameSearch.lolSearch.domain.MatchInfoVO">
+        <result column="GAME_ID" property="gameId" />
+        <result column="USER_TEAM_ID" property="userTeamId" />
+        <result column="USER_WIN_OR_LOSE" property="userWinOrLose" />
+        <result column="ENEMY_USER_NAME" property="enemyUserName" />
+        <result column="GAME_CREATION" property="gameCreation" />
+        <result column="GAME_DURATION" property="gameDuration" />
+        <result column="GAME_END_TIMESTAMP" property="gameEndTimestamp" />
+        <result column="GAME_MODE" property="gameMode" />
+        <result column="GAME_NAME" property="gameName" />
+        <result column="GAME_START_TIMESTAMP" property="gameStartTimestamp" />
+        <result column="GAME_TYPE" property="gameType" />
+        <result column="GAME_VERSION" property="gameVersion" />
+        <result column="MAP_ID" property="mapId" />
+        <result column="PLATFORM_ID" property="platformId" />
+        <result column="QUEUE_ID" property="queueId" />
+        <result column="TOURNAMENT_CODE" property="tournamentCode" />
+        <result column="CONVERT_TIME" property="convertTime" />
+        <result column="REST_DAYS" property="restDays" />
+        <result column="REST_HOURS" property="restHours" />
+
+    </resultMap>
+
+    <resultMap id="participantDtoResultMap" type="com.fordo.gameSearch.lolSearch.domain.ParticipantDto">
+        <result property="gameId" column="GAME_ID" />
+        <result property="sumKills" column="SUM_KILLS" />
+        <result property="sumDeaths" column="SUM_DEATHS" />
+        <result property="sumAssists" column="SUM_ASSISTS" />
+        <result property="calAvg" column="CAL_AVG" />
+        <result property="killPercent" column="KILL_PERCENT" />
+
+        <result property="spell1" column="SPELL1" />
+        <result property="spell2" column="SPELL2" />
+
+        <result property="assists" column="ASSISTS" />
+        <result property="baronKills" column="BARON_KILLS" />
+        <result property="bountyLevel" column="BOUNTY_LEVEL" />
+        <result property="champExperience" column="CHAMP_EXPERIENCE" />
+        <result property="champLevel" column="CHAMP_LEVEL" />
+        <result property="championId" column="CHAMPION_ID" />
+        <result property="championName" column="CHAMPION_NAME" />
+        <result property="championTransform" column="CHAMPION_TRANSFORM" />
+        <result property="consumablesPurchased" column="CONSUMABLES_PURCHASED" />
+        <result property="damageDealtToBuildings" column="DAMAGE_DEALT_TO_BUILDINGS" />
+        <result property="damageDealtToObjectives" column="DAMAGE_DEALT_TO_OBJECTIVES" />
+        <result property="damageDealtToTurrets" column="DAMAGE_DEALT_TO_TURRETS" />
+        <result property="damageSelfMitigated" column="DAMAGE_SELF_MITIGATED" />
+        <result property="deaths" column="DEATHS" />
+        <result property="detectorWardsPlaced" column="DETECTOR_WARDS_PLACED" />
+        <result property="doubleKills" column="DOUBLE_KILLS" />
+        <result property="dragonKills" column="DRAGON_KILLS" />
+        <result property="firstBloodAssist" column="FIRST_BLOOD_ASSIST" />
+        <result property="firstBloodKill" column="FIRST_BLOOD_KILL" />
+        <result property="firstTowerAssist" column="FIRST_TOWER_ASSIST" />
+        <result property="firstTowerKill" column="FIRST_TOWER_KILL" />
+        <result property="gameEndedInEarlySurrender" column="GAME_ENDED_IN_EARLY_SURRENDER" />
+        <result property="gameEndedInSurrender" column="GAME_ENDED_IN_SURRENDER" />
+        <result property="goldEarned" column="GOLD_EARNED" />
+        <result property="goldSpent" column="GOLD_SPENT" />
+        <result property="individualPosition" column="INDIVIDUAL_POSITION" />
+        <result property="inhibitorKills" column="INHIBITOR_KILLS" />
+        <result property="inhibitorTakedowns" column="INHIBITOR_TAKEDOWNS" />
+        <result property="inhibitorsLost" column="INHIBITORS_LOST" />
+        <result property="item0" column="ITEM0" />
+        <result property="item1" column="ITEM1" />
+        <result property="item2" column="ITEM2" />
+        <result property="item3" column="ITEM3" />
+        <result property="item4" column="ITEM4" />
+        <result property="item5" column="ITEM5" />
+        <result property="item6" column="ITEM6" />
+        <result property="itemsPurchased" column="ITEMS_PURCHASED" />
+        <result property="killingSprees" column="KILLING_SPREES" />
+        <result property="kills" column="KILLS" />
+        <result property="lane" column="LANE" />
+        <result property="largestCriticalStrike" column="LARGEST_CRITICAL_STRIKE" />
+        <result property="largestKillingSpree" column="LARGEST_KILLING_SPREE" />
+        <result property="largestMultiKill" column="LARGEST_MULTI_KILL" />
+        <result property="longestTimeSpentLiving" column="LONGEST_TIME_SPENT_LIVING" />
+        <result property="magicDamageDealt" column="MAGIC_DAMAGE_DEALT" />
+        <result property="magicDamageDealtToChampions" column="MAGIC_DAMAGE_DEALT_TO_CHAMPIONS" />
+        <result property="magicDamageTaken" column="MAGIC_DAMAGE_TAKEN" />
+        <result property="neutralMinionsKilled" column="NEUTRAL_MINIONS_KILLED" />
+        <result property="nexusKills" column="NEXUS_KILLS" />
+        <result property="nexusTakedowns" column="NEXUS_TAKEDOWNS" />
+        <result property="nexusLost" column="NEXUS_LOST" />
+        <result property="objectivesStolen" column="OBJECTIVES_STOLEN" />
+        <result property="objectivesStolenAssists" column="OBJECTIVES_STOLEN_ASSISTS" />
+        <result property="participantId" column="PARTICIPANT_ID" />
+        <result property="pentaKills" column="PENTA_KILLS" />
+
+        <result property="physicalDamageDealt" column="PHYSICAL_DAMAGE_DEALT" />
+        <result property="physicalDamageDealtToChampions" column="PHYSICAL_DAMAGE_DEALT_TO_CHAMPIONS" />
+        <result property="physicalDamageTaken" column="PHYSICAL_DAMAGE_TAKEN" />
+        <result property="profileIcon" column="PROFILE_ICON" />
+        <result property="puuid" column="PUUID" />
+        <result property="quadraKills" column="QUADRA_KILLS" />
+        <result property="riotIdName" column="RIOT_ID_NAME" />
+        <result property="riotIdTagline" column="RIOT_ID_TAGLINE" />
+        <result property="role" column="ROLE" />
+        <result property="sightWardsBoughtInGame" column="SIGHT_WARDS_BOUGHT_IN_GAME" />
+        <result property="spell1Casts" column="SPELL1_CASTS" />
+        <result property="spell2Casts" column="SPELL2_CASTS" />
+        <result property="spell3Casts" column="SPELL3_CASTS" />
+        <result property="spell4Casts" column="SPELL4_CASTS" />
+        <result property="summoner1Casts" column="SUMMONER1_CASTS" />
+        <result property="summoner1Id" column="SUMMONER1_ID" />
+        <result property="summoner2Casts" column="SUMMONER2_CASTS" />
+        <result property="summoner2Id" column="SUMMONER2_ID" />
+        <result property="summonerId" column="SUMMONER_ID" />
+        <result property="summonerLevel" column="SUMMONER_LEVEL" />
+        <result property="summonerName" column="SUMMONER_NAME" />
+        <result property="teamEarlySurrendered" column="TEAM_EARLY_SURRENDERED" />
+        <result property="teamId" column="TEAM_ID" />
+        <result property="teamPosition" column="TEAM_POSITION" />
+        <result property="timeCCingOthers" column="TIME_CCING_OTHERS" />
+        <result property="timePlayed" column="TIME_PLAYED" />
+        <result property="totalDamageDealt" column="TOTAL_DAMAGE_DEALT" />
+        <result property="totalDamageDealtToChampions" column="TOTAL_DAMAGE_DEALT_TO_CHAMPIONS" />
+        <result property="totalDamageShieldedOnTeammates" column="TOTAL_DAMAGE_SHIELDED_ON_TEAMMATES" />
+        <result property="totalDamageTaken" column="TOTAL_DAMAGE_TAKEN" />
+        <result property="totalHeal" column="TOTAL_HEAL" />
+        <result property="totalHealsOnTeammates" column="TOTAL_HEALS_ON_TEAMMATES" />
+        <result property="totalMinionsKilled" column="TOTAL_MINIONS_KILLED" />
+        <result property="totalTimeCCDealt" column="TOTAL_TIME_CC_DEALT" />
+        <result property="totalTimeSpentDead" column="TOTAL_TIME_SPENT_DEAD" />
+        <result property="totalUnitsHealed" column="TOTAL_UNITS_HEALED" />
+        <result property="tripleKills" column="TRIPLE_KILLS" />
+        <result property="trueDamageDealt" column="TRUE_DAMAGE_DEALT" />
+        <result property="trueDamageDealtToChampions" column="TRUE_DAMAGE_DEALT_TO_CHAMPIONS" />
+        <result property="trueDamageTaken" column="TRUE_DAMAGE_TAKEN" />
+        <result property="turretKills" column="TURRET_KILLS" />
+        <result property="turretTakedowns" column="TURRET_TAKEDOWNS" />
+        <result property="turretsLost" column="TURRETS_LOST" />
+        <result property="unrealKills" column="UNREAL_KILLS" />
+        <result property="visionScore" column="VISION_SCORE" />
+        <result property="visionWardsBoughtInGame" column="VISION_WARDS_BOUGHT_IN_GAME" />
+        <result property="wardsKilled" column="WARDS_KILLED" />
+        <result property="wardsPlaced" column="WARDS_PLACED" />
+        <result property="win" column="WIN" />
+        <result property="totalAllyJungleMinionsKilled" column="TOTAL_ALLY_JUNGLE_MINIONS_KILLED" />
+    </resultMap>
+
+
+</mapper>

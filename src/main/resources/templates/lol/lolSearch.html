@@ -1,0 +1,55 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<link rel="stylesheet" th:href="@{/css/searchbox.css}" type="text/css">
+<head th:replace="fragments/header">
+    <title>Hello</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+
+<link rel="stylesheet" th:href="@{/css/title.css}" type="text/css">
+
+<body>
+<!-- Header Section Begin -->
+<header class="header" th:replace="fragments/bodyHeader :: bodyHeader"/>
+<!-- Header End -->
+
+<!-- Search model Begin -->
+<form id="searchbox" action="/lol/search.do" method="get">
+
+    <select id="searchbox-platform" name="country"></select>
+
+    <input id="searchbox-box" class="recent-pop" type="text" name="userName" placeholder="소환사명을 입력하세요" autocomplete="off" required="true" />
+
+    <button id="searchbox-button"><i class="fa fa-search" aria-hidden="true"></i></button>
+
+    <div id="recent-users" class="recent-pop"><div id="recent-container"></div></div>
+</form>
+<!-- Search model end -->
+
+<!-- Footer Section Begin -->
+<div th:replace="fragments/footer :: footer"></div>
+<!-- Footer End -->
+
+<script th:inline="javascript">
+    document.addEventListener("DOMContentLoaded",function(){
+        var data = '[[${country}]]';
+        var countryTag = $('#searchbox-platform');
+        var cOption = JSON.parse(data);
+
+        if(cOption){
+            Array.from(cOption).forEach(function(country){
+                countryTag.append('<option value='+country.countryCode+'>'+country.countryCode+'</option>');
+            });
+            countryTag.niceSelect();
+        }
+        var searchBtn = document.getElementById('searchbox-button');
+        searchBtn.addEventListener("click", function(){
+            document.getElementById('searchbox').submit();
+        });
+
+    });
+</script>
+
+</body>
+</html>
+

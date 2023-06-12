@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<!-- Header Section Begin -->
+<header class="header" th:fragment="bodyHeader">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-2">
+        <div class="header__logo" style="text-align:center;">
+          <a href="/">
+            <img src="/img/logo.png" alt="" style="height:62.5px; position:absolute; top:0px; background-color:white;">
+          </a>
+        </div>
+      </div>
+      <div class="col-lg-8">
+        <div class="header__nav">
+          <nav class="header__menu mobile-menu">
+            <ul>
+              <li class="active"><a href="/lol/lolSearch.do">LOL</a></li>
+              <li><a href="http://localhost:8080/map/testMap.do">Our Blog</a></li>
+              <li><a href="#">Contacts</a></li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </div>
+    <div id="mobile-menu-wrap"></div>
+  </div>
+</header>
+<!-- Header End -->

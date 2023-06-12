@@ -1,0 +1,56 @@
+server:
+  port: 8089
+
+# 로깅 안함 버전(쿼리문)
+#spring:
+#  datasource:
+#    url: jdbc:oracle:thin:@localhost:1521/orcl
+#    driver-class-name : oracle.jdbc.driver.OracleDriver
+#    username: fordo
+#    password : cjfals1069
+#  devtools:
+#    livereload:
+#      enabled: true
+
+# 로깅 하는 버전(쿼리문)
+spring:
+  datasource:
+    url: jdbc:log4jdbc:oracle:thin:@localhost:1521/orcl
+    driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
+    username: fordo
+    password : cjfals1069
+    #hikari:
+    #  connection-timeout: 5000
+    #  validation-timeout: 1000
+    #  maximum-pool-size: 30
+    #  minimum-idle: 2
+    #  connection-test-query: SELECT 1
+  devtools:
+    livereload:
+      enabled: true
+# 로깅 안할 시 주석 처리 할 것(쿼리문)
+logging:
+  level:
+    com:
+      zaxxer:
+        hikari: INFO
+    javax:
+      sql:
+        DataSource: OFF
+    jdbc:
+      audit: OFF # JDBC 트러블슈팅 경우를 제외하고는 사용 권장 X
+      resultset: OFF # ResultSet을 포함한 모든 JDBC 호출 정보를 출력
+      resultsettable: INFO  #SQL 결과 데이터 Table형식으로 출력
+      sqlonly: OFF     #SQL만 로그만 출력
+      sqltiming: INFO    #SQL + 소요시간 출력
+      connection : OFF  # 커넥션 연결/종료 정보 출력
+
+api:
+  lol:
+    key: RGAPI-8a822b46-d582-4569-85e8-ed2048cd0d2d
+
+mybatis:
+  mapper-locations: classpath:mapper/**/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+    jdbc-type-for-null: "NULL"

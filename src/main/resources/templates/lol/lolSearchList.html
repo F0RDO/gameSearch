@@ -1,0 +1,569 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<link rel="stylesheet" th:href="@{/css/searchbox.css}" type="text/css">
+<head th:replace="fragments/header">
+  <title>Hello</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+
+<head>
+  <link rel="stylesheet" type="text/css" href="/css/template.css">
+  <link rel="stylesheet" type="text/css" href="/css/reset_template.css">
+  <link rel="stylesheet" type="text/css" href="/css/reset_user.css">
+
+  <link rel="stylesheet" type="text/css" href="/css/match.css">
+  <link rel="stylesheet" type="text/css" href="/css/reset_match.css">
+  <link rel="stylesheet" type="text/css" href="/css/recent.css">
+  <link rel="stylesheet" type="text/css" href="/css/reset_recent.css">
+  <link rel="stylesheet" type="text/css" href="/css/tooltip.css">
+
+  <style>
+    body {
+        font-size: 16px;
+    }
+  </style>
+</head>
+
+<body>
+<!-- Header Section Begin -->
+<header class="header" th:replace="fragments/bodyHeader :: bodyHeader"/>
+<!-- Header End -->
+
+<!-- Search model Begin -->
+<form id="searchbox" action="/lol/search.do" method="get">
+
+  <select id="searchbox-platform" name="country"></select>
+
+  <input id="searchbox-box" class="recent-pop" type="text" name="userName" placeholder="소환사명을 입력하세요" autocomplete="off" required="true" />
+
+  <button id="searchbox-button"><i class="fa fa-search" aria-hidden="true"></i></button>
+
+  <div id="recent-users" class="recent-pop"><div id="recent-container"></div></div>
+</form>
+<!-- Search model end -->
+
+<div id="content">
+  <div id="user-profile" class="in-box">
+
+    <div id="user-profile-bio">
+      <div id="user-profile-bio-img">
+        <img th:src="@{${profileImg}}" alt="Profile Icon">
+      </div>
+      <div id="user-profile-bio-grid">
+        <h1 id="user-profile-name" accountId="${result.accountId}" th:text="${result.name}"></h1>
+        <form id="user-profile-refresh" action="/update/97889" method="get">
+          <button id="update-button" value="업데이트" type="submit">업데이트</button>
+        </form>
+      </div>
+    </div>
+
+    <div id="user-ranks">
+        <!-- List 크기가 0일 때 Unranked 처리 -->
+        <th:block th:if="${#lists.size(tierInfo)} <= 0">
+          <div class="profile-rank">
+            <img src="/img/tier/Unranked.png" alt="Unranked">
+            <div class="profile-rank-text">
+              <div class="profile-rank-text-grid">
+                <span class="text-rank-title">솔로랭크</span>
+                <span class="text-tier text-Unranked">Unranked </span>
+                <span class="text-ratio">0% 0lp</span>
+                <span>
+                    <span class="text-inactive">0W</span>
+                    <span class="text-inactive">0L</span>
+              </span>
+              </div>
+            </div>
+          </div>
+          <div class="profile-rank">
+            <img src="/img/tier/Unranked.png" alt="Unranked">
+            <div class="profile-rank-text">
+              <div class="profile-rank-text-grid">
+                <span class="text-rank-title">자유랭크</span>
+                <span class="text-tier text-Unranked">Unranked</span>
+                <span class="text-ratio">0lp</span>
+                <span>
+                  <span class="text-wins">0W</span>
+                  <span class="text-losses">0L</span>
+              </span>
+              </div>
+            </div>
+          </div>
+        </th:block>
+
+      <!-- 리스트의 크기가 0보다 클 때 -->
+       <th:block th:if="${#lists.size(tierInfo)} > 0">
+         <!-- 반복문 실행 -->
+        <th:block th:each="tierInfo : ${tierInfo}">
+          <!-- 솔로 랭크일 시 -->
+          <th:block th:if="${#strings.equals(tierInfo.queueType,'RANKED_SOLO_5x5')}">
+            <div class="profile-rank">
+              <img th:src="|/img/tier/${tierInfo.tier}.png|" alt="Unranked">
+              <div class="profile-rank-text">
+                <div class="profile-rank-text-grid">
+                  <span class="text-rank-title">솔로랭크</span>
+                  <span th:class="|text-tier text-${tierInfo.tier}|" th:text="|${tierInfo.tier} ${tierInfo.rank}|"></span>
+                  <span class="text-ratio" th:text="|${tierInfo.leaguePoints}lp|">0%</span>
+                  <span>
+                    <span class="text-inactive" th:text="|${tierInfo.wins}W|"></span>
+                    <span class="text-inactive" th:text="|${tierInfo.losses}L|"></span>
+              </span>
+                </div>
+              </div>
+            </div>
+          </th:block>
+          <!-- 자유랭크 일 시 -->
+          <th:block th:if="${#strings.equals(tierInfo.queueType,'RANKED_FLEX_SR')}">
+            <div class="profile-rank">
+              <img th:src="|/img/tier/${tierInfo.tier}.png|" alt="Unranked">
+              <div class="profile-rank-text">
+                <div class="profile-rank-text-grid">
+                  <span class="text-rank-title">자유랭크</span>
+                  <span th:class="|text-tier text-${tierInfo.tier}|" th:text="|${tierInfo.tier} ${tierInfo.rank}|"></span>
+                  <span class="text-ratio" th:text="|${tierInfo.leaguePoints}lp|">0%</span>
+                  <span>
+                    <span class="text-inactive" th:text="|${tierInfo.wins}W|"></span>
+                    <span class="text-inactive" th:text="|${tierInfo.losses}L|"></span>
+              </span>
+                </div>
+              </div>
+            </div>
+          </th:block>
+        </th:block>
+      </th:block>
+    </div>
+  </div>
+
+  <div id="user-games">
+    <div id="user-games-header">
+    </div>
+    <div id="user-games-body" class="in-box">
+      <div id="user-games-recent">
+        <div id="games-recent-charts">
+          <span id="recent-victory" class="recent-chart-text"></span>
+          <div id="chart-victory-wrapper">
+            <div id="chart-victory"><div style="position: relative;">
+              <div dir="ltr" style="position: relative; width: 150px; height: 150px;">
+                <div aria-label="A chart." style="position: absolute; left: 0px; top: 0px; width: 100%; height: 100%;">
+                  <svg width="150" height="150" aria-label="A chart." style="overflow: hidden;">
+                    <defs id="_ABSTRACT_RENDERER_ID_0"></defs><rect x="0" y="0" width="150" height="150" stroke="none" stroke-width="0" fill="#f5f5f5"></rect>
+                    <g><path d="M75,30L75,0A75,75,0,0,1,119.08389392193548,135.67627457812105L101.45033635316129,111.40576474687263A45,45,0,0,0,75,30" stroke="#ffffff" stroke-width="1" fill="#f12f55"></path></g><g>
+                    <path d="M101.45033635316129,111.40576474687263L119.08389392193548,135.67627457812105A75,75,0,1,1,75,0L74.99999999999999,30A45,45,0,1,0,101.45033635316129,111.40576474687263" stroke="#ffffff" stroke-width="1" fill="#22c4d5"></path></g><g></g></svg><div aria-label="A tabular representation of the data in the chart." style="position: absolute; left: -10000px; top: auto; width: 1px; height: 1px; overflow: hidden;"><table><thead><tr><th>Win</th><th>times</th></tr></thead><tbody><tr><td>Defeat</td><td>8</td></tr><tr><td>Victory</td><td>12</td></tr></tbody></table></div></div></div><div aria-hidden="true" style="display: none; position: absolute; top: 160px; left: 160px; white-space: nowrap; font-family: Arial; font-size: 8px;"></div><div></div></div></div>
+            <div id="chart-victory-text"><span id="chart-victory-span">60%</span></div>
+          </div>
+        </div>
+        <div id="recent-log-wrapper">
+          <div id="games-recent-log">
+            <th:block th:each="matchInfoOne : ${matchInfo}">
+              <th:block th:each="participant : ${matchInfoOne.info.participants}">
+                <div class="recent-game-wrapper" th:if="${participant.summonerName} == ${result.name}" th:attr="matchId=${matchInfoOne.metadata.matchId}">
+                  <div th:class="'recent-game recent-game-' + (${participant.win} ? 'Win' : 'Lose')">
+                    <!-- 승/패, 시간, 모드, 현재일로부터의 차이 -->
+                    <div class="recent-header recent-cell">
+                      <div th:class="'recent-win ' + (${participant.win} ? 'Win' : 'Lose')">
+                        <div th:class="'recent-rect ' + (${participant.win} ? 'Win' : 'Lose')"></div>
+                        <span class="'recent-win-text'" th:text="${participant.win} ? '승리' : '패배'"></span>
+                      </div>
+                      <div class="recent-mini">
+                        <div class="recent-duration"><span th:text="${matchInfoOne.info.convertTime}"></span></div>
+                        <div class="recent-type">
+                          <span th:if="${matchInfoOne.info.queueId == '400'}" th:text="일반"></span>
+                          <span th:if="${matchInfoOne.info.queueId == '420'}" th:text="솔랭"></span>
+                          <span th:if="${matchInfoOne.info.queueId == '430'}" th:text="자랭"></span>
+                          <span th:if="${matchInfoOne.info.queueId == '440'}" th:text="자랭"></span>
+                        </div>
+                        <div class="recent-date" th:text="${matchInfoOne.info.restDays} == null ? ${matchInfoOne.info.restHours}+'시간 전' : ${matchInfoOne.info.restDays}+'일 전'"><span></span></div>
+                      </div>
+                    </div>
+                    <!-- 챔피언 이미지 -->
+                    <div class="recent-champ recent-cell" th:if="${participant.summonerName} == ${result.name}">
+                      <img class="recent-champ-icon" th:src="'https://ddragon.leagueoflegends.com/cdn/'+${version}+'/img/champion/'+${participant.championName}+'.png'" th:alt="${participant.championName}" th:title="${participant.championName}">
+                      <div th:class="'shadow recent-shadow ' + (${participant.win} ? 'Win' : 'Lose')"></div>
+                      <div class="recent-champ-level">
+                        <span class="text-level" th:text="${participant.champLevel}"></span>
+                      </div>
+                    </div>
+                    <!-- 스펠, 룬 -->
+                    <div class="recent-runespell recent-cell" th:if="${participant.summonerName} == ${result.name}">
+                      <div class="recent-rune">
+                        <img class="rune-main rune tooltipstered" src="https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Precision/LethalTempo/LethalTempoTemp.png" rune-id="8008">
+                        <img class="rune-sub rune tooltipstered" src="https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/7204_Resolve.png" rune-id="8400">
+                      </div>
+                      <div class="recent-spell">
+                        <img class="recent-spell-img recent-spell-first spell tooltipstered" th:src="'https://ddragon.leagueoflegends.com/cdn/'+${version}+'/img/spell/'+${participant.spell1}" spell-name="SummonerFlash">
+                        <img class="recent-spell-img spell tooltipstered" th:src="'https://ddragon.leagueoflegends.com/cdn/'+${version}+'/img/spell/'+${participant.spell2}" spell-name="SummonerHaste">
+                      </div>
+                    </div>
+                    <!-- kda, 평점, 킬관여 -->
+                    <div class="recent-kda recent-cell" th:if="${participant.summonerName} == ${result.name}">
+                      <div class="recent-kda-kda">
+                        <span class="text-kda" th:text="${participant.kills}"></span>
+                        <span>/</span><span class="text-kda" th:text="${participant.deaths}"></span>
+                        <span>/</span><span class="text-kda" th:text="${participant.assists}"></span>
+                        <img class="icon-inline" src="/img/icon/mask-icon-offense.png">
+                      </div>
+                      <div class="recent-score">
+                        <span class="text-score-lang">평점</span>
+                        <span class="text-score" th:text="${participant.calAvg}"></span>
+                      </div>
+                      <div class="recent-part">
+                        <span class="text-part-lang">킬관여</span>
+                        <span class="text-killpart" th:text="${participant.killPercent}+'%'"></span>
+                      </div>
+                      <div class="recent-medal">
+
+                      </div>
+                    </div>
+                    <!-- 아이템, 총cs (분당cs), 총 골드 -->
+                    <div class="recent-etc recent-cell">
+                      <div class="recent-items">
+                        <img class="item item-first tooltipstered" th:src="${participant.item0} == 0 ? '/img/recent/recent-6.jpg' :|https://ddragon.bangingheads.net/cdn/${version}/img/item/${participant.item0}.png|" th:item-id="${participant.item0}">
+                        <img class="item item-first tooltipstered" th:src="${participant.item1} == 0 ? '/img/recent/recent-6.jpg' :|https://ddragon.bangingheads.net/cdn/${version}/img/item/${participant.item1}.png|" th:item-id="${participant.item1}">
+                        <img class="item item-first tooltipstered" th:src="${participant.item2} == 0 ? '/img/recent/recent-6.jpg' :|https://ddragon.bangingheads.net/cdn/${version}/img/item/${participant.item2}.png|" th:item-id="${participant.item2}">
+                        <img class="item item-first tooltipstered" th:src="${participant.item3} == 0 ? '/img/recent/recent-6.jpg' :|https://ddragon.bangingheads.net/cdn/${version}/img/item/${participant.item3}.png|" th:item-id="${participant.item3}">
+                        <img class="item item-first tooltipstered" th:src="${participant.item4} == 0 ? '/img/recent/recent-6.jpg' :|https://ddragon.bangingheads.net/cdn/${version}/img/item/${participant.item4}.png|" th:item-id="${participant.item4}">
+                        <img class="item item-first tooltipstered" th:src="${participant.item5} == 0 ? '/img/recent/recent-6.jpg' :|https://ddragon.bangingheads.net/cdn/${version}/img/item/${participant.item5}.png|" th:item-id="${participant.item5}">
+                        <div class="item-vision">
+                          <img class="item tooltipstered" th:src="|https://ddragon.bangingheads.net/cdn/${version}/img/item/${participant.item6}.png|" th:item-id="${participant.item6}">
+                          <span class="vision-score tooltipstered" th:text="${participant.itemsPurchased}"></span>
+                        </div>
+                      </div>
+                      <div class="recent-cs">
+                        <span th:text="${participant.totalMinionsKilled}+${participant.totalAllyJungleMinionsKilled}+${participant.wardsKilled}"></span>
+                        <img class="icon-inline" src="/img/icon/mask-icon-cs.png">
+                      </div>
+                      <div class="recent-gold">
+                        <span th:text="${participant.goldEarned}"></span>
+                        <img class="icon-inline" src="/img/icon/mask-icon-gold.png">
+                      </div>
+                    </div>
+                    <!-- 상세보기 버튼 -->
+                    <div th:class="'recent-detail ' + (${participant.win} ? 'Win' : 'Lose')">
+                      <div class="detail-arrow">
+                        <i th:class="'detail-up arrow-' + (${participant.win} ? 'Win' : 'Lose') + ' fa fa-caret-up'" th:id="'detailUp_'+${matchInfoOne.metadata.matchId}" style="display: none;"></i>
+                        <i th:class="'detail-down arrow-' + (${participant.win} ? 'Win' : 'Lose') + ' fa fa-caret-down'" th:id="'detailDown_'+${matchInfoOne.metadata.matchId}"></i>
+                      </div>
+                    </div>
+                    <div class="recent-match match-hide"> </div>
+                  </div>
+                  <!-- 해당 게임 상세정보 -->
+                  <div class="recent-match" th:id="'recent_match_'+${matchInfoOne.metadata.matchId}" style="display:none">
+                      <div th:class="'match '+(${matchInfoOne.info.userWinOrLose} ? 'Win' : 'Lose')">
+                        <!-- 헤더 -->
+                        <div class="match-header" th:each="participantDetail : ${matchInfoOne.info.participants}" th:if="${participantDetail.summonerName} == ${result.name}">
+                          <div class="match-header-left">
+                            <div class="match-header-win">
+                              <i th:class="'fa fa-circle win-rect '+ (${matchInfoOne.info.userWinOrLose} ? 'Win' : 'Lose')" aria-hidden="true"></i>
+                              <span th:text="${matchInfoOne.info.userWinOrLose} ? '승리':'패배'"></span>
+                            </div>
+                            <div class="match-header-duration">
+                              <span th:text="${matchInfoOne.info.convertTime}"></span>
+                            </div>
+                          </div>
+                          <div class="match-header-graph">
+                            <div class="header-button">
+                              <span class="header-graph-text">그래프</span>
+                              <span class="header-stats-text part-hide">통계</span>
+                            </div>
+                          </div>
+                        </div>
+                        <!-- 유저 기준 팀 정보 -->
+                        <div th:class="'team ' + (${matchInfoOne.info.userWinOrLose} ? 'Win' : 'Lose')" >
+                          <header class="team-header" th:if="${participantDetail2.summonerName} == ${result.name}" th:each="participantDetail2 : ${matchInfoOne.info.participants}">
+                            <div class="col-champ cell">
+                              <div class="inner-cell-header header-team">
+                                <span th:class="'text-team text-'+ (${participantDetail2.teamId} == '100' ? 'RedTeam' : 'BlueTeam') + ' text-color-'+ (${participantDetail2.win} ? 'Win' : 'Lose')"></span>
+                              </div>
+                            </div>
+                            <div class="for-mobile col-dummy"></div>
+                            <div class="col-name cell">
+                              <div class="inner-cell-header">
+                                <span th:class="'text-kda-header text-color-' + (${participantDetail2.win} ? 'Win' : 'Lose')" th:text="${participantDetail2.sumKills}"></span><span th:class="'text-color-' + (${participant.win} ? 'Win' : 'Lose')">/</span>
+                                <span th:class="'text-kda-header text-color-' + (${participantDetail2.win} ? 'Win' : 'Lose')" th:text="${participantDetail2.sumDeaths}"></span><span th:class="'text-color-' + (${participant.win} ? 'Win' : 'Lose')">/</span>
+                                <span th:class="'text-kda-header text-color-' + (${participantDetail2.win} ? 'Win' : 'Lose')" th:text="${participantDetail2.sumAssists}"></span>
+                                <img th:class="'icon-header ' + (${participantDetail2.win} ? 'Win' : 'Lose')" src="/img/icon/mask-icon-offense.png">
+                              </div>
+                            </div>
+                            <div class="col-item cell">
+                              <div class="inner-cell-header">
+                                <span class="text-gold-header">54,114</span>
+                                <img class="icon-header" src="/img/icon/mask-icon-gold.png">
+                              </div>
+                            </div>
+                            <div class="col-kda cell">
+                              <div class="inner-cell-header padding-cell">
+                                <span><img class="icon-header" src="/img/icon/mask-icon-offense.png"></span>
+                              </div>
+                            </div>
+                            <div class="col-cs cell">
+                              <div class="inner-cell-header padding-cell">
+                                <span><img class="icon-header" src="/img/icon/mask-icon-cs.png"></span>
+                              </div>
+                            </div>
+                            <div class="col-gold cell">
+                              <div class="inner-cell-header">
+                                <span><img class="icon-header" src="/img/icon/mask-icon-gold.png"></span>
+                              </div>
+                            </div>
+                            <div class="col-damage cell part-hide">
+                              <div class="inner-cell-header">챔피언에게 가한 총 피해량</div>
+                            </div>
+                          </header>
+                          <ul class="team-container">
+                            <li th:class="(${participantDetail3.summonerName} == ${result.name}) ? 'team-part is-me' : 'team-part'" th:each="participantDetail3 : ${matchInfoOne.info.participants}" th:if="${participantDetail3.teamId} == ${matchInfoOne.info.userTeamId}">
+                              <div class="part-champ cell">
+                                <div class="inner-cell">
+                                  <div class="part-rune">
+                                    <img class="rune-main rune tooltipstered"
+                                         src="https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Precision/Conqueror/Conqueror.png"
+                                         rune-id="8010">
+                                    <img class="rune-sub rune tooltipstered"
+                                         src="https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/7203_Whimsy.png"
+                                         rune-id="8300">
+                                  </div>
+                                  <div class="part-spell">
+                                    <img class="spell1 spell tooltipstered" th:src="'https://ddragon.leagueoflegends.com/cdn/'+${version}+'/img/spell/'+${participantDetail3.spell1}" spell-name="SummonerFlash">
+                                    <img class="spell2 spell tooltipstered" th:src="'https://ddragon.leagueoflegends.com/cdn/'+${version}+'/img/spell/'+${participantDetail3.spell2}" spell-name="SummonerSmite">
+                                  </div>
+                                  <div class="part-level">
+                                    <span th:text="${participantDetail3.champLevel}"></span>
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="part-name cell">
+                                <div class="inner-cell" style="float: left;">
+                                  <div class="part-icon">
+                                    <img th:src="|https://ddragon.leagueoflegends.com/cdn/${version}/img/champion/${participantDetail3.championName}.png|" th:attr="alt=${participantDetail3.championName}, title=${participantDetail3.championName}">
+                                    <div class="shadow"></div>
+                                  </div>
+                                  <a class="part-link" th:href="'/lol/search.do/'+${participantDetail3.summonerName}" th:text="${participantDetail3.summonerName}"></a>
+                                </div>
+                              </div>
+                              <div class="part-item cell">
+                                <div class="inner-cell">
+                                  <img class="item item-first tooltipstered" th:src="${participantDetail3.item0} == 0 ? '/img/recent/recent-6.jpg' :'https://ddragon.bangingheads.net/cdn/'+${version}+'/img/item/'+${participantDetail3.item0}+'.png'" item-id="6333">
+                                  <img class="item tooltipstered" th:src="${participantDetail3.item1} == 0 ? '/img/recent/recent-6.jpg' :'https://ddragon.bangingheads.net/cdn/'+${version}+'/img/item/'+${participantDetail3.item1}+'.png'" item-id="1031">
+                                  <img class="item tooltipstered" th:src="${participantDetail3.item2} == 0 ? '/img/recent/recent-6.jpg' :'https://ddragon.bangingheads.net/cdn/'+${version}+'/img/item/'+${participantDetail3.item2}+'.png'" item-id="2420">
+                                  <img class="item tooltipstered" th:src="${participantDetail3.item3} == 0 ? '/img/recent/recent-6.jpg' :'https://ddragon.bangingheads.net/cdn/'+${version}+'/img/item/'+${participantDetail3.item3}+'.png'" item-id="1038">
+                                  <img class="item tooltipstered" th:src="${participantDetail3.item4} == 0 ? '/img/recent/recent-6.jpg' :'https://ddragon.bangingheads.net/cdn/'+${version}+'/img/item/'+${participantDetail3.item4}+'.png'" item-id="3111">
+                                  <img class="item tooltipstered" th:src="${participantDetail3.item5} == 0 ? '/img/recent/recent-6.jpg' :'https://ddragon.bangingheads.net/cdn/'+${version}+'/img/item/'+${participantDetail3.item5}+'.png'" item-id="6632">
+                                  <div class="item-vision">
+                                    <img class="item tooltipstered" th:src="'https://ddragon.bangingheads.net/cdn/'+${version}+'/img/item/'+${participantDetail3.item6}+'.png'" item-id="3364">
+                                    <span class="vision-score tooltipstered" th:text="${participantDetail3.visionScore}"></span>
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="part-kda cell">
+                                <div class="inner-cell padding-cell" title="(48%)">
+                                  <span class="text-kda" th:text="${participantDetail3.kills}"></span>
+                                  <span>/</span><span class="text-kda" th:text="${participantDetail3.deaths}"></span>
+                                  <span>/</span><span class="text-kda" th:text="${participantDetail3.assists}"></span>
+                                </div>
+                              </div>
+                              <div class="part-cs cell">
+                                <div class="inner-cell padding-cell">
+                                  <span class="text-cs" title="23 + 142 (6.1)" th:text="${participantDetail3.totalAllyJungleMinionsKilled}+${participantDetail3.totalMinionsKilled}">165</span>
+                                </div>
+                              </div>
+                              <div class="part-gold cell">
+                                <div class="inner-cell padding-cell">
+                                  <span class="text-gold" th:text="${participantDetail3.totalDamageDealtToChampions}"></span>
+                                </div>
+                              </div>
+                              <div class="part-damage cell part-hide">
+                                <div class="inner-cell">
+                                  <div class="damage-box Win" data-dmg="12243" style="width: 290.153px;"></div>
+                                  <span class="text-damage" title="12,243/211,762">12,243</span>
+                                </div>
+                              </div>
+                            </li>
+                          </ul>
+                        </div>
+                        <!-- 유저 상대 팀 정보 -->
+                        <div th:class="'team ' + (${matchInfoOne.info.userWinOrLose} ? 'Lose' : 'Win')">
+                          <header class="team-header" th:if="${participantDetail4.summonerName} == ${matchInfoOne.info.enemyUserName}" th:each="participantDetail4 : ${matchInfoOne.info.participants}">
+                            <div class="col-champ cell">
+                              <div class="inner-cell-header header-team">
+                                <span th:class="'text-team text-'+ (${participantDetail4.teamId} == '100' ? 'RedTeam' : 'BlueTeam') + ' text-color-'+ (${participantDetail4.win} ? 'Win' : 'Lose')"></span>
+                              </div>
+                            </div>
+                            <div class="for-mobile col-dummy"></div>
+                            <div class="col-name cell">
+                              <div class="inner-cell-header">
+                                <span th:class="'text-kda-header text-color-' + (${participantDetail4.win} ? 'Win' : 'Lose')" th:text="${participantDetail4.sumKills}"></span><span th:class="'text-color-' + (${participantDetail4.win} ? 'Win' : 'Lose')">/</span>
+                                <span th:class="'text-kda-header text-color-' + (${participantDetail4.win} ? 'Win' : 'Lose')" th:text="${participantDetail4.sumDeaths}"></span><span th:class="'text-color-' + (${participantDetail4.win} ? 'Win' : 'Lose')">/</span>
+                                <span th:class="'text-kda-header text-color-' + (${participantDetail4.win} ? 'Win' : 'Lose')" th:text="${participantDetail4.sumAssists}"></span>
+                                <img th:class="'icon-header ' + (${participantDetail4.win} ? 'Win' : 'Lose')" src="/img/icon/mask-icon-offense.png">
+                              </div>
+                            </div>
+                            <div class="col-item cell">
+                              <div class="inner-cell-header">
+                                <span class="text-gold-header">54,114</span>
+                                <img class="icon-header" src="/img/icon/mask-icon-gold.png">
+                              </div>
+                            </div>
+                            <div class="col-kda cell">
+                              <div class="inner-cell-header padding-cell">
+                                <span><img class="icon-header" src="/img/icon/mask-icon-offense.png"></span>
+                              </div>
+                            </div>
+                            <div class="col-cs cell">
+                              <div class="inner-cell-header padding-cell">
+                                <span><img class="icon-header" src="/img/icon/mask-icon-cs.png"></span>
+                              </div>
+                            </div>
+                            <div class="col-gold cell">
+                              <div class="inner-cell-header">
+                                <span><img class="icon-header" src="/img/icon/mask-icon-gold.png"></span>
+                              </div>
+                            </div>
+                            <div class="col-damage cell part-hide">
+                              <div class="inner-cell-header">챔피언에게 가한 총 피해량</div>
+                            </div>
+                          </header>
+                          <ul class="team-container">
+                            <li class="team-part" th:each="participantDetail5 : ${matchInfoOne.info.participants}" th:if="${participantDetail5.teamId} != ${matchInfoOne.info.userTeamId}">
+                              <div class="part-champ cell">
+                                <div class="inner-cell">
+                                  <div class="part-rune">
+                                    <img class="rune-main rune tooltipstered"
+                                         src="https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Precision/Conqueror/Conqueror.png"
+                                         rune-id="8010">
+                                    <img class="rune-sub rune tooltipstered"
+                                         src="https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/7203_Whimsy.png"
+                                         rune-id="8300">
+                                  </div>
+                                  <div class="part-spell">
+                                    <img class="spell1 spell tooltipstered" th:src="'https://ddragon.leagueoflegends.com/cdn/'+${version}+'/img/spell/'+${participantDetail5.spell1}"
+                                         spell-name="SummonerFlash">
+                                    <img class="spell2 spell tooltipstered" th:src="'https://ddragon.leagueoflegends.com/cdn/'+${version}+'/img/spell/'+${participantDetail5.spell2}"
+                                         spell-name="SummonerSmite">
+                                  </div>
+                                  <div class="part-level">
+                                    <span th:text="${participantDetail5.champLevel}"></span>
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="part-name cell">
+                                <div class="inner-cell" style="float: left;">
+                                  <div class="part-icon">
+                                    <img th:src="|https://ddragon.leagueoflegends.com/cdn/${version}/img/champion/${participantDetail5.championName}.png|" th:attr="alt=${participantDetail5.championName}, title=${participantDetail5.championName}">
+                                    <div class="shadow"></div>
+                                  </div>
+                                  <a class="part-link" th:href="'/lol/search.do/'+${participantDetail5.summonerName}" th:text="${participantDetail5.summonerName}"></a>
+                                </div>
+                              </div>
+                              <div class="part-item cell">
+                                <div class="inner-cell">
+                                  <img class="item item-first tooltipstered" th:src="${participantDetail5.item0} == 0 ? '/img/recent/recent-6.jpg' :'https://ddragon.bangingheads.net/cdn/'+${version}+'/img/item/'+${participantDetail5.item0}+'.png'" item-id="6333">
+                                  <img class="item tooltipstered" th:src="${participantDetail5.item1} == 0 ? '/img/recent/recent-6.jpg' :'https://ddragon.bangingheads.net/cdn/'+${version}+'/img/item/'+${participantDetail5.item1}+'.png'" item-id="1031">
+                                  <img class="item tooltipstered" th:src="${participantDetail5.item2} == 0 ? '/img/recent/recent-6.jpg' :'https://ddragon.bangingheads.net/cdn/'+${version}+'/img/item/'+${participantDetail5.item2}+'.png'" item-id="2420">
+                                  <img class="item tooltipstered" th:src="${participantDetail5.item3} == 0 ? '/img/recent/recent-6.jpg' :'https://ddragon.bangingheads.net/cdn/'+${version}+'/img/item/'+${participantDetail5.item3}+'.png'" item-id="1038">
+                                  <img class="item tooltipstered" th:src="${participantDetail5.item4} == 0 ? '/img/recent/recent-6.jpg' :'https://ddragon.bangingheads.net/cdn/'+${version}+'/img/item/'+${participantDetail5.item4}+'.png'" item-id="3111">
+                                  <img class="item tooltipstered" th:src="${participantDetail5.item5} == 0 ? '/img/recent/recent-6.jpg' :'https://ddragon.bangingheads.net/cdn/'+${version}+'/img/item/'+${participantDetail5.item5}+'.png'" item-id="6632">
+                                  <div class="item-vision">
+                                    <img class="item tooltipstered" th:src="'https://ddragon.bangingheads.net/cdn/'+${version}+'/img/item/'+${participantDetail5.item6}+'.png'" item-id="3364">
+                                    <span class="vision-score tooltipstered" th:text="${participantDetail5.visionScore}"></span>
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="part-kda cell">
+                                <div class="inner-cell padding-cell" title="(48%)">
+                                  <span class="text-kda" th:text="${participantDetail5.kills}"></span>
+                                  <span>/</span><span class="text-kda" th:text="${participantDetail5.deaths}"></span>
+                                  <span>/</span><span class="text-kda" th:text="${participantDetail5.assists}"></span>
+                                </div>
+                              </div>
+                              <div class="part-cs cell">
+                                <div class="inner-cell padding-cell">
+                                  <span class="text-cs" title="23 + 142 (6.1)" th:text="${participantDetail5.totalAllyJungleMinionsKilled}+${participantDetail5.totalMinionsKilled}">165</span>
+                                </div>
+                              </div>
+                              <div class="part-gold cell">
+                                <div class="inner-cell padding-cell">
+                                  <span class="text-gold" th:text="${participantDetail5.totalDamageDealtToChampions}"></span>
+                                </div>
+                              </div>
+                              <div class="part-damage cell part-hide">
+                                <div class="inner-cell">
+                                  <div class="damage-box Win" data-dmg="12243" style="width: 290.153px;"></div>
+                                  <span class="text-damage" title="12,243/211,762">12,243</span>
+                                </div>
+                              </div>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                  </div>
+                </div>
+              </th:block>
+            </th:block>
+          </div>
+          <div id="recent-more">
+            <i class="fa fa-plus icon-more hide" aria-hidden="true"></i>
+            <i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw icon-more-wait" aria-hidden="true"></i>
+          </div>
+        </div>
+      </div>
+      <div id="user-games-all">
+      </div></div>
+    <div id="item-tooltips"></div>
+    <div id="spell-tooltips"></div>
+    <div id="rune-tooltips"></div>
+  </div>
+</div>
+
+
+
+<!-- Footer Section Begin -->
+<div th:replace="fragments/footer :: footer"></div>
+<!-- Footer End -->
+<script src="/js/lol/lolSearch.js"></script>
+<script th:inline="javascript">
+    document.addEventListener("DOMContentLoaded",function(){
+        let matchInfo = '[[${matchInfo}]]';
+        let jsonMatchInfo = JSON.parse(matchInfo);
+
+        let userInfo = '[[${result}]]';
+        let jsonUserInfo = JSON.parse(userInfo);
+
+        let version = '[[${version}]]';
+
+        var data = '[[${country}]]';
+        var countryTag = $('#searchbox-platform');
+        var cOption = JSON.parse(data);
+
+        if(cOption){
+            Array.from(cOption).forEach(function(country){
+                countryTag.append('<option value='+country.countryCode+'>'+country.countryCode+'</option>');
+            });
+            countryTag.niceSelect();
+        }
+        var searchBtn = document.getElementById('searchbox-button');
+        searchBtn.addEventListener("click", function(){
+            document.getElementById('searchbox').submit();
+        });
+        /*원 차트 전적 text Setting */
+        totalWinAndLose('[[${matchInfo}]]', '[[${result}]]');
+
+        /* 화살표 아이콘 업 다운 */
+        let detailUp = document.querySelectorAll('.detail-up');
+        detailUp.forEach(upClassOne => {
+          upClassOne.addEventListener('click', (e) => {
+              let matchId = e.currentTarget.closest('div[matchId]').getAttribute('matchId');
+              detailArrowUpDown(matchId, 'up');
+          });
+        });
+        let detailDown = document.querySelectorAll('.detail-down');
+        detailDown.forEach(downClassOne => {
+          downClassOne.addEventListener('click', (e) => {
+                let matchId = e.currentTarget.closest('div[matchId]').getAttribute('matchId');
+                detailArrowUpDown(matchId, 'down');
+                makeDetailInfo(matchId, jsonUserInfo.name, version, matchInfo);
+              });
+          });
+    });
+</script>
+
+</body>
+</html>
+
