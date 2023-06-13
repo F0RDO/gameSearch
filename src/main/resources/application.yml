@@ -47,7 +47,7 @@ logging:
 
 api:
   lol:
-    key: RGAPI-8a822b46-d582-4569-85e8-ed2048cd0d2d
+    key:
 
 mybatis:
   mapper-locations: classpath:mapper/**/*.xml
